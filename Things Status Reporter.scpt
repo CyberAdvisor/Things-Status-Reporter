@@ -13,16 +13,17 @@
 set the defaultArea to ""
 set the defaultDate to (short date string of (current date))
 set the defaultPeriod to 7
+set the tsgVersion to "v0.1.1"
 
 --
 -- Get inputs from the user (area, report duration, week ending date)
 -- 
-display dialog "Things Status Reporter v0.1.1" & return & return & "What Area would you like to report on?" default answer defaultArea
+display dialog "Things Status Reporter " & tsgVersion & return & return & "What Area would you like to report on?" default answer defaultArea
 set inArea to the text returned of the result
-display dialog "Things Status Reporter v0.1.1" & return & return & "As of what report period end date?" default answer defaultDate
+display dialog "Things Status Reporter " & tsgVersion & return & return & "As of what report period end date?" default answer defaultDate
 set inWEDateTxt to the text returned of the result
 set inWEDate to date inWEDateTxt
-display dialog "Things Status Reporter v0.1.1" & return & return & "Report period duration in days?" default answer defaultPeriod
+display dialog "Things Status Reporter " & tsgVersion & return & return & "Report period duration in days?" default answer defaultPeriod
 set inPeriod to the text returned of the result as number
 set rptStartDate to inWEDate - ((inPeriod - 1) * days)
 
@@ -88,7 +89,7 @@ end tell
 --
 -- Close the file
 -- 
-write return & return & "Produced by Things Status Reporter v0.1.1 on " & (short date string of (current date)) to statusReportFile as «class utf8»
+write return & return & "Produced by Things Status Reporter " & tsgVersion & " on " & (short date string of (current date)) to statusReportFile as «class utf8»
 close access statusReportFile
 
 -- 
