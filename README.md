@@ -17,12 +17,3 @@ Enjoy!
 
 Michael Lines
 
-------------------------------------------------
-
-Planned enhancements (send me your ideas for additional items and I will consider if it also meets my needs)
-
-- Error handling
-- Proactive reporting (planned, not just completed tasks)
-- Additional info on report (tags, due date, etc)
-
-
