@@ -11,7 +11,7 @@ In addition to weekly status reporting, this also can be used to generate long t
 
 To use this script, just copy the source code into Apple's Script Editor and adjust the defaults to your preferences if desired. From there you can save it as an AppleScript Application so that it can be put onto the OSX Dock or executied by double clicking when needed. 
 
-Please report issues using the Github issue tab for this project so that I can track and respond to them centrally. Also, if you would like to be notified of new releases or updates, use Github Watch. 
+Please report issues using the Github issue tab for this project so that I can track and respond to them centrally. Also, if you would like to be notified of new releases or updates, use Github Watch button a the top of this page. 
 
 Enjoy!
 
