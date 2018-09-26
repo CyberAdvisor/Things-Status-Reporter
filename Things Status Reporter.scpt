@@ -2,7 +2,8 @@
 -- Generates Markdown formatted status reports by Things3 Area
 -- 
 -- Written by Michael Lines
--- Source code repository at https://github.com/CyberAdvisor. Please report issues using Github
+-- Source code repository at https://github.com/CyberAdvisor/Things-Status-Reporter
+-- Please report issues using Github
 -- v0.1 - Initial release
 --
 
