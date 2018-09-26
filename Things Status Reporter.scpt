@@ -48,7 +48,7 @@ tell application "Things3"
 	set wprList to {}
 	repeat with pr in prList
 		set prName to the name of the area of pr
-		if prName = defaultArea then
+		if prName = inArea then
 			copy name of pr to the end of the wprList
 		end if
 	end repeat
