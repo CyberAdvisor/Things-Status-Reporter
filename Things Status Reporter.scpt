@@ -5,7 +5,8 @@
 -- Source code repository at https://github.com/CyberAdvisor/Things-Status-Reporter
 -- Please report issues using Github
 -- v0.1 - Initial release
--- v0.1.1 - Fix error
+-- v0.1.1 - Fix error w missing defaultArea
+-- v0.1.2 - Fix error with project outside of Area
 
 --
 -- Configuration switches (set to your preferences)
@@ -13,7 +14,7 @@
 set the defaultArea to ""
 set the defaultDate to (short date string of (current date))
 set the defaultPeriod to 7
-set the tsgVersion to "v0.1.1"
+set the tsgVersion to "v0.1.2"
 
 --
 -- Get inputs from the user (area, report duration, week ending date)
@@ -48,9 +49,11 @@ tell application "Things3"
 	set prList to projects
 	set wprList to {}
 	repeat with pr in prList
-		set prName to the name of the area of pr
-		if prName = inArea then
-			copy name of pr to the end of the wprList
+		if area of pr is not missing value then
+			set prName to the name of the area of pr
+			if prName = inArea then
+				copy name of pr to the end of the wprList
+			end if
 		end if
 	end repeat
 	
