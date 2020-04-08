@@ -1,109 +1,119 @@
--- Things Status Reporter 
--- Generates Markdown formatted status reports by Things3 Area
+use AppleScript version "2.4" -- Yosemite (10.10) or later
+use scripting additions
+(*
+Things Status Reporter
+By Michael Lines
+mikelines@gmail.com
+
+ABOUT
+This script creates a weekly status report for a designated Things area.
+
+HISTORY
+- 2020-04-08 - v2.0;  refactored, changed to email output
+
+KNOWN ISSUES
+- 
+
+PENDING ENHANCEMENTS
+- Add report parameters request
+*)
+
 -- 
--- Written by Michael Lines
--- Source code repository at https://github.com/CyberAdvisor/Things-Status-Reporter
--- Please report issues using Github
--- v0.1 - Initial release
--- v0.1.1 - Fix error w missing defaultArea
--- v0.1.2 - Fix error with project outside of Area
+-- Get/set the report parameters
+--
+set area_default to ""
+set report_person to ""
+set date_string to ""
+
+display dialog "Things Status Reporter " & return & return & "What Things Area would you like to report on?" default answer area_default
+set report_area to the text returned of the result
+display dialog "Things Status Reporter " & return & return & "What is the 'as of' report date (default today)?" default answer date_string
+set report_date_string to the text returned of the result
+if report_date_string = "" then set report_date_string to date string of (current date)
+display dialog "Things Status Reporter " & return & "Who is this status report for?" default answer report_person
+
+set report_date to date report_date_string
+set report_end_date_string to date string of ((current date) + (7 * days))
+set report_end_date to date report_end_date_string
+set report_start_date_string to date string of ((current date) - (7 * days))
+set report_start_date to date report_start_date_string
 
 --
--- Configuration switches (set to your preferences)
---
-set the defaultArea to ""
-set the defaultDate to (short date string of (current date))
-set the defaultPeriod to 7
-set the tsgVersion to "v0.1.2"
-
---
--- Get inputs from the user (area, report duration, week ending date)
--- 
-display dialog "Things Status Reporter " & tsgVersion & return & return & "What Area would you like to report on?" default answer defaultArea
-set inArea to the text returned of the result
-display dialog "Things Status Reporter " & tsgVersion & return & return & "As of what report period end date?" default answer defaultDate
-set inWEDateTxt to the text returned of the result
-set inWEDate to date inWEDateTxt
-display dialog "Things Status Reporter " & tsgVersion & return & return & "Report period duration in days?" default answer defaultPeriod
-set inPeriod to the text returned of the result as number
-set rptStartDate to inWEDate - ((inPeriod - 1) * days)
-
---
--- Choose the output file location & open
---
-set outputFile to POSIX path of (choose file name default location (path to documents folder from user domain) default name inArea & " " & (short date string of inWEDate) & ".txt")
-set statusReportFile to (open for access outputFile with write permission)
-set eof of statusReportFile to 0
-set cr to ASCII character 10
-write "# " & inArea & " Status Report" & return & "### For Period Ending " & (date string of inWEDate) & return & return to statusReportFile as «class utf8»
-
---
--- Loop through todos for matching items
+-- Initial data gathering from Things
 --
 tell application "Things3"
-	set tdList to to dos of list "Logbook"
-	
 	--
-	-- Create list of projects in Area > wprList
+	-- Get the list of all projects in the report area, skipping complete
 	--
-	set prList to projects
-	set wprList to {}
-	repeat with pr in prList
-		if area of pr is not missing value then
-			set prName to the name of the area of pr
-			if prName = inArea then
-				copy name of pr to the end of the wprList
+	set projects_list to projects
+	set report_projects_list to {}
+	repeat with selected_project in projects_list
+		if area of selected_project is not missing value then
+			if name of the area of selected_project = report_area and completion date of selected_project is missing value then
+				copy name of selected_project to the end of the report_projects_list
 			end if
 		end if
 	end repeat
 	
 	--
-	-- Loop through all Area projects for closed items & report
+	-- Get the list of completed tasks
 	--
-	set lastWP to "" -- Flag to ID project changes
-	repeat with i from 1 to number of items in wprList
-		set wProject to item i of wprList
-		repeat with td in tdList
-			set tdDoneIn to completion date of td
-			if (tdDoneIn ≥ rptStartDate) and (tdDoneIn ≤ inWEDate) then
-				if project of td is not missing value then
-					set tdProject to the name of the project of td
-					if tdProject is equal to wProject then
-						if wProject is not equal to lastWP then -- Check for project changes and print new header
-							set lastWP to wProject
-							write return & "**" & wProject & "**:" & return to statusReportFile as «class utf8»
-						end if
-						set tdName to the name of td
-						set tdDone to weekday of tdDoneIn -- Adjust as desired to date string or short date string
-						write "* " & tdDone & " - " & tdName & return to statusReportFile as «class utf8»
-						set tdNotes to the notes of td
-						if tdNotes is not "" then
-							set fixedNote to my replaceText(cr, " ", tdNotes) -- Strip CRs in notes for formatting
-							write "    * " & fixedNote & return to statusReportFile as «class utf8»
-						end if
+	set done_todos_list to to dos of list "Logbook"
+end tell
+
+-- 
+-- Print the report header information
+--
+set report_text to "" -- Initialize report
+set report_text to report_text & "Weekly Status Report for " & report_person & return & "Week Ending " & report_date_string & return
+
+--
+-- For each project, print the in scope completed and pending tasks
+--
+tell application "Things3"
+	repeat with i from 1 to number of items in report_projects_list
+		--
+		-- Print the project header info
+		--
+		set report_text to report_text & return & "Project: " & item i of report_projects_list & return
+		
+		--
+		-- Print the project closed tasks in scope
+		--
+		set report_text to report_text & return & tab & "Completed: " & return
+		repeat with done_todo in done_todos_list
+			if completion date of done_todo < report_start_date then
+				exit repeat
+			end if
+			if project of done_todo is not missing value then
+				if name of the project of done_todo is equal to item i of report_projects_list then -- Check if done todo was for this project
+					if (completion date of done_todo ≥ report_start_date) and (completion date of done_todo ≤ report_date + (1 * days)) then
+						set report_text to report_text & tab & "   - " & name of done_todo & return
 					end if
 				end if
 			end if
 		end repeat
+		
+		-- 
+		-- Print the project open tasks in scope
+		-- 
+		set selected_project to item i of report_projects_list
+		set open_todos_list to to dos of project selected_project
+		set report_text to report_text & return & tab & "In Progress/Next: " & return
+		repeat with open_todo in open_todos_list
+			if activation date of open_todo ≤ report_end_date and activation date of open_todo is not missing value then
+				set report_text to report_text & tab & "   - " & name of open_todo & return
+			end if
+		end repeat
 	end repeat
-	
 end tell
 
---
--- Close the file
 -- 
-write return & return & "Produced by Things Status Reporter " & tsgVersion & " on " & (short date string of (current date)) to statusReportFile as «class utf8»
-close access statusReportFile
+--  (will be in drafts folder for final edits before sending)
+--
+tell application "Microsoft Outlook"
+	set email_subject to report_person & " Weekly Status Report for " & "Week Ending " & report_date_string
+	set status_email to make new outgoing message with properties {subject:email_subject, plain text content:report_text}
+	send status_email
+end tell
 
--- 
--- Subroutine to cleanup notes
---
-on replaceText(find, replace, someText)
-	set prevTIDs to text item delimiters of AppleScript
-	set text item delimiters of AppleScript to find
-	set someText to text items of someText
-	set text item delimiters of AppleScript to replace
-	set someText to "" & someText
-	set text item delimiters of AppleScript to prevTIDs
-	return someText
-end replaceText
