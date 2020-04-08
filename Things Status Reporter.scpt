@@ -109,7 +109,7 @@ tell application "Things3"
 end tell
 
 -- 
---  (will be in drafts folder for final edits before sending)
+-- Email the report (will be in drafts folder for final edits before sending)
 --
 tell application "Microsoft Outlook"
 	set email_subject to report_person & " Weekly Status Report for " & "Week Ending " & report_date_string
