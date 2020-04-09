@@ -17,5 +17,6 @@ Michael Lines
 
 ** Revisions
 
+v2.1 2020-04-09 - Changed from plain text to HTML output for better formatting in Outlook
 v2. 2020-04-08 - Refactored the code, changed the reporting logic and switched to email (Outlook) vs text file. Removed Markup logic
 
