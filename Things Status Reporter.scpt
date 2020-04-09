@@ -26,8 +26,6 @@ PENDING ENHANCEMENTS
 set area_default to "" -- default area to report on in things
 set person_default to "" -- default name of person to use in report title
 
-set date_string to ""
-
 display dialog "Things Status Reporter " & return & return & "What Things Area would you like to report on?" default answer area_default
 set report_area to the text returned of the result
 
