@@ -10,33 +10,37 @@ This script creates a weekly status report for a designated Things area.
 
 HISTORY
 - 2020-04-08 - v2.0;  refactored, changed to email output
+- 2020-04-09 - v2.0.1;  minor code cleanups, fixed display default bugs
 
 KNOWN ISSUES
 - 
 
 PENDING ENHANCEMENTS
-- Add report parameters request
+- Add input verification. Allow users to select Area from list, verify input date
+- Add native HTML output for Outlook
 *)
 
 -- 
 -- Get/set the report parameters
 --
-set area_default to ""
-set report_person to ""
+set area_default to "" -- default area to report on in things
+set person_default to "" -- default name of person to use in report title
+
 set date_string to ""
 
 display dialog "Things Status Reporter " & return & return & "What Things Area would you like to report on?" default answer area_default
 set report_area to the text returned of the result
-display dialog "Things Status Reporter " & return & return & "What is the 'as of' report date (default today)?" default answer date_string
-set report_date_string to the text returned of the result
-if report_date_string = "" then set report_date_string to date string of (current date)
-display dialog "Things Status Reporter " & return & "Who is this status report for?" default answer report_person
 
+display dialog "Things Status Reporter " & return & return & "What is the 'as of' report date (default today)?" default answer date string of (current date)
+set report_date_string to the text returned of the result
 set report_date to date report_date_string
 set report_end_date_string to date string of ((current date) + (7 * days))
 set report_end_date to date report_end_date_string
 set report_start_date_string to date string of ((current date) - (7 * days))
 set report_start_date to date report_start_date_string
+
+display dialog "Things Status Reporter " & return & return & "Who is this status report for?" default answer person_default
+set report_person to the text returned of the result
 
 --
 -- Initial data gathering from Things
@@ -59,18 +63,16 @@ tell application "Things3"
 	-- Get the list of completed tasks
 	--
 	set done_todos_list to to dos of list "Logbook"
-end tell
-
--- 
--- Print the report header information
---
-set report_text to "" -- Initialize report
-set report_text to report_text & "Weekly Status Report for " & report_person & return & "Week Ending " & report_date_string & return
-
---
--- For each project, print the in scope completed and pending tasks
---
-tell application "Things3"
+	
+	-- 
+	-- Print the report header information
+	--
+	set report_text to "" -- Initialize report
+	set report_text to report_text & "Weekly Status Report for " & report_person & return & "Week Ending " & report_date_string & return
+	
+	--
+	-- For each project, print the in scope completed and pending tasks
+	--
 	repeat with i from 1 to number of items in report_projects_list
 		--
 		-- Print the project header info
@@ -109,11 +111,10 @@ tell application "Things3"
 end tell
 
 -- 
--- Email the report (will be in drafts folder for final edits before sending)
+--  (will be in drafts folder for final edits before sending)
 --
 tell application "Microsoft Outlook"
 	set email_subject to report_person & " Weekly Status Report for " & "Week Ending " & report_date_string
 	set status_email to make new outgoing message with properties {subject:email_subject, plain text content:report_text}
 	send status_email
 end tell
-
