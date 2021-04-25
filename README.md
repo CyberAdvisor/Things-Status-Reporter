@@ -1,6 +1,10 @@
 # Things Status Reporter
 A status report generator for Things 3
 
+This project is licensed under the terms of the MIT license.
+
+Please use the Gitub Issues and Discussions to report problems or ask questions.
+
 While Things3 from Cultured Code is a great task manager and planner, it is lacking an easy way to show actual completion of tasks, especially when it is being used in a work context where status reports are required.
 
 I developed this script specifically to address this need for my own use. Please feel free to use and adjust to your specific requirements. By default the status reporting period is a week, but you can adjust as needed in the code. Also, this will report on all completed and open tasks for projects in a specified area. If you want to have reports for multiple areas you will need to run the report repeatedly. You can also set the defaults for area, report date and name of person in the script so you don't have to reenter them everytime. 
